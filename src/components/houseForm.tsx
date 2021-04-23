@@ -3,17 +3,18 @@ import { useForm } from "react-hook-form";
 import { useMutation, gql } from "@apollo/client";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { Image } from "cloudinary-react";
+// import { Image } from "cloudinary-react";
 import { SearchBox } from "./searchBox";
-// import {
-//   CreateHouseMutation,
-//   CreateHouseMutationVariables,
-// } from "src/generated/CreateHouseMutation";
+import {
+  CreateHouseMutation,
+  CreateHouseMutationVariables,
+} from "src/generated/CreateHouseMutation";
 // import {
 //   UpdateHouseMutation,
 //   UpdateHouseMutationVariables,
 // } from "src/generated/UpdateHouseMutation";
 import { CreateSignatureMutation } from "src/generated/CreateSignatureMutation";
+import { route } from "next/dist/next-server/server/router";
 
 const SIGNATURE_MUTATION = gql`
   mutation CreateSignatureMutation {
@@ -24,6 +25,13 @@ const SIGNATURE_MUTATION = gql`
   }
 `;
 
+const CREATE_HOUSE_MUTATION = gql`
+  mutation CreateHouseMutation($input: HouseInput!) {
+    createHouse(input: $input) {
+      id
+    }
+  }
+`;
 interface IUploadImageResponse {
   secure_url: string;
 }
@@ -33,7 +41,7 @@ async function uploadImage(
   signature: string,
   timestamp: number
 ): Promise<IUploadImageResponse> {
-  const url = `https://api.cloudinary.com/v1_1/dwjl531y2/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`;
+  const url = `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`;
 
   const formData = new FormData();
   formData.append("file", image);
@@ -45,14 +53,13 @@ async function uploadImage(
     method: "post",
     body: formData,
   });
-
   return response.json();
 }
 
 interface IFromData {
   address: string;
-  latitude: string;
-  longitude: string;
+  latitude: number;
+  longitude: number;
   bedrooms: string;
   image: FileList;
 }
@@ -60,6 +67,7 @@ interface IFromData {
 interface IProps {}
 
 export default function HouseForm({}: IProps) {
+  const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [previewImage, setpreviewImage] = useState<string>("");
   const { register, handleSubmit, setValue, errors, watch } = useForm<
@@ -72,6 +80,10 @@ export default function HouseForm({}: IProps) {
   const [createSignature] = useMutation<CreateSignatureMutation>(
     SIGNATURE_MUTATION
   );
+  const [createHouse] = useMutation<
+    CreateHouseMutation,
+    CreateHouseMutationVariables
+  >(CREATE_HOUSE_MUTATION);
 
   useEffect(() => {
     register({ name: "address" }, { required: "Please enter you address" });
@@ -86,7 +98,21 @@ export default function HouseForm({}: IProps) {
       const { signature, timestamp } = signatureData.createImageSignature;
       const imageData = await uploadImage(data.image[0], signature, timestamp);
 
-      console.log(imageData.secure_url);
+      const { data: housedata } = await createHouse({
+        variables: {
+          input: {
+            address: data.address,
+            image: imageData.secure_url,
+            coordinates: { latitude: data.latitude, longitude: data.longitude },
+            bedrooms: parseInt(data.bedrooms, 10),
+          },
+        },
+      });
+
+      if (housedata?.createHouse) {
+        return router.push(`/houses/${housedata.createHouse.id}`);
+      }
+      return alert("ERROR!");
     }
   };
 
