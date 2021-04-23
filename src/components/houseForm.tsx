@@ -13,7 +13,41 @@ import { SearchBox } from "./searchBox";
 //   UpdateHouseMutation,
 //   UpdateHouseMutationVariables,
 // } from "src/generated/UpdateHouseMutation";
-// import { CreateSignatureMutation } from "src/generated/CreateSignatureMutation";
+import { CreateSignatureMutation } from "src/generated/CreateSignatureMutation";
+
+const SIGNATURE_MUTATION = gql`
+  mutation CreateSignatureMutation {
+    createImageSignature {
+      signature
+      timestamp
+    }
+  }
+`;
+
+interface IUploadImageResponse {
+  secure_url: string;
+}
+
+async function uploadImage(
+  image: File,
+  signature: string,
+  timestamp: number
+): Promise<IUploadImageResponse> {
+  const url = `https://api.cloudinary.com/v1_1/dwjl531y2/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`;
+
+  const formData = new FormData();
+  formData.append("file", image);
+  formData.append("signature", signature);
+  formData.append("timestamp", timestamp.toString());
+  formData.append("api_key", process.env.NEXT_PUBLIC_CLOUDINARY_KEY ?? "");
+
+  const response = await fetch(url, {
+    method: "post",
+    body: formData,
+  });
+
+  return response.json();
+}
 
 interface IFromData {
   address: string;
@@ -35,6 +69,9 @@ export default function HouseForm({}: IProps) {
   });
 
   const address = watch("address");
+  const [createSignature] = useMutation<CreateSignatureMutation>(
+    SIGNATURE_MUTATION
+  );
 
   useEffect(() => {
     register({ name: "address" }, { required: "Please enter you address" });
@@ -44,6 +81,13 @@ export default function HouseForm({}: IProps) {
 
   const handleCreate = async (data: IFromData) => {
     console.log(data, "CREATE!");
+    const { data: signatureData } = await createSignature();
+    if (signatureData) {
+      const { signature, timestamp } = signatureData.createImageSignature;
+      const imageData = await uploadImage(data.image[0], signature, timestamp);
+
+      console.log(imageData.secure_url);
+    }
   };
 
   const onSubmit = (data: IFromData) => {
