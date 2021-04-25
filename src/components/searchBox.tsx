@@ -86,7 +86,7 @@ function ReadySearchBox({ onSelectAddress, defaultValue }: ISearchBoxProps) {
         disabled={!ready}
         placeholder="Search your location"
         className="w-full p-2"
-        autoComplete={false}
+        autoComplete="false"
       />
       <ComboboxPopover>
         <ComboboxList>
