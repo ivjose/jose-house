@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { Image } from "cloudinary-react";
 import { useQuery, gql } from "@apollo/client";
 import Layout from "src/components/layout";
-// import HouseNav from "src/components/houseNav";
+import HouseNav from "src/components/houseNav";
 import SingleMap from "src/components/singleMap";
 import {
   ShowHouseQuery,
@@ -56,6 +56,7 @@ function HouseData({ id }: { id: string }) {
       main={
         <div className="sm:block md:flex">
           <div className="p-4 sm:w-full md:w-1/2">
+            <HouseNav house={house} />
             <h1 className="my-2 text-3xl">{house.address}</h1>
             <Image
               className="pb-2"

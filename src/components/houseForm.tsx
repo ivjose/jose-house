@@ -124,7 +124,10 @@ export default function HouseForm({}: IProps) {
   console.log(errors);
 
   return (
-    <form className="max-w-xl py-4 max-auto" onSubmit={handleSubmit(onSubmit)}>
+    <form
+      className="max-w-xl py-4 mx-auto max-auto"
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <h1 className="text-xl">Add a New House</h1>
 
       <div className="mt-4">
