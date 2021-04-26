@@ -20,7 +20,7 @@ export interface HousesQuery_houses {
 }
 
 export interface HousesQuery {
-  houses: HousesQuery_houses[] | null;
+  houses: HousesQuery_houses[];
 }
 
 export interface HousesQueryVariables {

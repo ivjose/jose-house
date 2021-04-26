@@ -3,7 +3,7 @@ import { useQuery, gql } from "@apollo/client";
 import { useDebounce } from "use-debounce";
 import Layout from "src/components/layout";
 import Map from "src/components/map";
-// import HouseList from "src/components/houseList";
+import HouseList from "src/components/houseList";
 import { useLastData } from "src/utils/useLastData";
 import { useLocalState } from "src/utils/useLocalState";
 import { HousesQuery, HousesQueryVariables } from "src/generated/HousesQuery";
@@ -52,9 +52,9 @@ export default function Home() {
     }
   );
 
-  const lastdata = useLastData(data);
   if (error) return <Layout main={<div>...Error loading houses</div>} />;
-  console.log({ lastdata });
+  const lastData = useLastData(data);
+  console.log({ lastData });
   return (
     <Layout
       main={
@@ -63,10 +63,13 @@ export default function Home() {
             className="w-1/2 pb-4"
             style={{ minHeight: "calc(100vh - 64px)", overflowX: "scroll" }}
           >
-            House List
+            <HouseList houses={lastData ? lastData.houses : []} />
           </div>
           <div className="w-1/2">
-            <Map setDataBounds={setDataBounds} />
+            <Map
+              setDataBounds={setDataBounds}
+              houses={lastData ? lastData.houses : []}
+            />
           </div>
         </div>
       }

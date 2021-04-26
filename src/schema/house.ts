@@ -110,7 +110,7 @@ export class HouseResolver {
     return ctx.prisma.house.findOne({ where: { id: parseInt(id, 10) } });
   }
 
-  @Query((_returns) => [House], { nullable: true })
+  @Query((_returns) => [House], { nullable: false })
   async houses(@Arg("bounds") bounds: BoundsInput, @Ctx() ctx: Context) {
     return ctx.prisma.house.findMany({
       where: {
