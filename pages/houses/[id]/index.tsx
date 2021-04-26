@@ -67,7 +67,7 @@ function HouseData({ id }: { id: string }) {
               dpr="auto"
               quality="auto"
               width={900}
-              hieght={Math.floor((9 / 16) * 900)}
+              height={Math.floor((9 / 16) * 900)}
               crop="fill"
               gravity="auto"
             />

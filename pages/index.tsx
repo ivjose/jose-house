@@ -53,9 +53,10 @@ export default function Home() {
     }
   );
 
-  if (error) return <Layout main={<div>...Error loading houses</div>} />;
   const lastData = useLastData(data);
-  console.log({ lastData });
+  console.log({ data, lastData, error }, "DDDDDDDDDDDDDDDDDDDDDDDDDDDdddd");
+  if (error) return <Layout main={<div>...Error loading houses</div>} />;
+
   return (
     <Layout
       main={
